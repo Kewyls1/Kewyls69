@@ -469,10 +469,31 @@ app.get('/payment-success/:itemId', apiLimiter, async (req, res) => {
 app.get('/download-credentials', (req, res) => {
     const login = req.query.login || 'Brak danych';
     const password = req.query.password || 'Brak danych';
-    const content = `Login: ${login}\nHasło: ${password}`;
-    
+    const email_login = req.query.email_login || 'Brak danych';
+    const email_password = req.query.email_password || 'Brak danych';
+    const old_password = req.query.old_password || 'Brak danych';
+    const register_date = req.query.register_date || 'Brak danych';
+    const last_activity = req.query.last_activity || 'Brak danych';
+    const skin_count = req.query.skin_count || 'Brak danych';
+
+    const content = `
+Dane konta:
+Login: ${login}
+Hasło: ${password}
+
+Dane email:
+Email: ${email_login}
+Hasło do email: ${email_password}
+Stare hasło: ${old_password}
+
+Szczegóły konta:
+Data rejestracji: ${register_date}
+Ostatnia aktywność: ${last_activity}
+Liczba skinów: ${skin_count}
+    `;
+
     res.set({
-        'Content-Disposition': 'attachment; filename="dane_konta.txt"',
+        'Content-Disposition': 'attachment; filename="DuckMarket - konto.txt"',
         'Content-Type': 'text/plain'
     });
     res.send(content);
