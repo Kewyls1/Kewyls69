@@ -418,7 +418,7 @@ app.get('/payment-success/:itemId', apiLimiter, async (req, res) => {
         const confirmResponse = await axios.post(
             `${LZT_API_URL2}/${itemId}/fast-buy`,
             {},
-            { headers: HEADERS, timeout: 10000 }
+            { headers: HEADERS, timeout: 30000 }
         );
 
         const responseData = confirmResponse.data;
