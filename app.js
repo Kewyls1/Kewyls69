@@ -9,6 +9,7 @@ const path = require('path');
 const qs = require('qs');
 
 // Konfiguracja stałych
+const BASE_URL = 'https://kewyls69.onrender.com';
 const EXCHANGE_RATE = parseFloat(process.env.EXCHANGE_RATE) || 4.3;
 const MARKUP = parseFloat(process.env.MARKUP) || 2.0;
 const FORTNITE_API_KEY = "24a66776-c97e-4d05-94f5-aa6ca073e856";
