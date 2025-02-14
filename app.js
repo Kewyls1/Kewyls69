@@ -367,24 +367,12 @@ app.get('/regulamin', apiLimiter, (req, res) => {
 app.get('/create-checkout-session/:itemId', checkoutLimiter, async (req, res) => {
     try {
         const itemId = req.params.itemId;
-        console.log('Przetwarzanie płatności dla itemId:', itemId);
-
         const offerData = await fetchApiData(`${LZT_API_URL2}/${itemId}`);
-        console.log('Dane oferty:', offerData);
-
-        if (!offerData?.item) {
-            console.error('Nie znaleziono oferty dla itemId:', itemId);
-            return res.status(404).json({ error: 'Nie znaleziono oferty' });
-        }
+        
+        if (!offerData?.item) return res.status(404).json({ error: 'Nie znaleziono oferty' });
 
         const usdPrice = parseFloat(offerData.item.price);
-        if (isNaN(usdPrice) {
-            console.error('Nieprawidłowa cena:', offerData.item.price);
-            return res.status(400).json({ error: 'Nieprawidłowa cena oferty' });
-        }
-
         const plnPrice = Math.round(usdPrice * EXCHANGE_RATE * MARKUP * 100);
-        console.log('Cena w PLN:', plnPrice);
 
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card', 'blik', 'paypal'],
@@ -407,11 +395,10 @@ app.get('/create-checkout-session/:itemId', checkoutLimiter, async (req, res) =>
             }
         });
 
-        console.log('Sesja Stripe utworzona:', session.id);
         res.json({ id: session.id });
 
     } catch (error) {
-        console.error('Błąd Stripe:', error);
+        console.error('Stripe error:', error);
         res.status(500).json({ error: error.message || 'Wewnętrzny błąd serwera' });
     }
 });
