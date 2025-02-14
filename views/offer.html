@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DuckMarket.pl - Produkt</title>
+  <link rel="shortcut icon" href="/static/logo.png" type="image/x-icon">
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <main>
+    <aside class="sidebar" data-sidebar>
+      <div class="sidebar-info">
+        <figure class="avatar-box">
+          <img src="/static/logo.png" alt="DuckMarket" width="80">
+        </figure>
+        <div class="info-content">
+          <h1 class="name">DuckMarket.pl</h1>
+          <p class="title">Market Kont</p>
+        </div>
+        <button class="info_more-btn" data-sidebar-btn>
+          <span>Pokaż więcej</span>
+          <ion-icon name="chevron-down"></ion-icon>
+        </button>
+      </div>
+      <div class="sidebar-info_more">
+        <div class="separator"></div>
+        <ul class="contacts-list">
+          <li class="contact-item">
+            <div class="icon-box">
+              <img src="/static/logo (1).png" width="33" height="33">
+            </div>
+            <div class="contact-info">
+              <p class="contact-title">Dołącz tutaj!</p>
+              <a href="https://discord.gg/4fxBst4xMW" class="contact-link">Discord</a>
+            </div>
+          </li>
+        </ul>
+        <div class="separator"></div>
+      </div>
+    </aside>
+
+    <div class="main-content">
+      <nav class="navbar">
+        <ul class="navbar-list">
+          <li class="navbar-item"><a href="/" class="navbar-link">Strona główna</a></li>
+          <li class="navbar-item"><a href="/market" class="navbar-link active">Market</a></li>
+          <li class="navbar-item"><a href="/regulamin" class="navbar-link">Regulamin</a></li>
+        </ul>
+      </nav>
+
+      <article class="about active" data-page="about">
+        <header>
+          <h2 class="h2 article-title">Produkt</h2>
+        </header>
+
+        <section class="about-text2">
+          <div class="container">
+            <h1 style="color: #e99706; font-weight: bold; font-size: 160%;">{{item.title}}</h1>
+            <button id="checkout-button" class="main-buy-btn">Kup teraz | {{item.pln_price}}</button>
+
+            {{#each categories}}
+            {{#if items}}
+            <section class="cosmetics-section">
+              <div class="section-header">
+                <h2>{{name}} ({{count}})</h2>
+              </div>
+              <div class="scroll-container">
+                <div class="cosmetics-grid">
+                  {{#each items}}
+                  <div class="cosmetic-card">
+                    <div class="cosmetic-image">
+                      <img src="{{image_url}}" 
+                           alt="{{title}}" 
+                           onerror="this.src='https://via.placeholder.com/150x150?text=Brak+zdjęcia'">
+                    </div>
+                    <div class="cosmetic-info">
+                      <span class="rarity {{toLower rarity}}">{{rarity}}</span>
+                      <div class="item-title-wrapper">
+                        <p class="item-title">{{title}}</p>
+                      </div>
+                    </div>
+                  </div>
+                  {{/each}}
+                </div>
+              </div>
+            </section>
+            {{/if}}
+            {{/each}}
+
+            <section class="transaction-section">
+              <h2 class="section-title">Historia zakupów</h2>
+              <div class="transaction-table">
+                <div class="table-header">
+                  <div class="th">Data</div>
+                  <div class="th">Przedmiot</div>
+                  <div class="th">Wartość</div>
+                </div>
+                {{#each transactions}}
+                <div class="table-row">
+                  <div class="td">{{formatTimestamp date}}</div>
+                  <div class="td">{{title}}</div>
+                  <div class="td">{{presentmentTotal}}</div>
+                </div>
+                {{/each}}
+              </div>
+            </section>
+
+            <section class="season-section">
+              <h2 class="section-title">Statystyki sezonowe</h2>
+              <div class="season-table">
+                <div class="table-header">
+                  <div class="th">Sezon</div>
+                  <div class="th">Poziom</div>
+                  <div class="th">Battle Pass</div>
+                </div>
+                {{#each past_seasons}}
+                <div class="table-row">
+                  <div class="td">{{seasonNumber}}</div>
+                  <div class="td">{{seasonLevel}}</div>
+                  <div class="td">{{#if battlePass}}Tak{{else}}Nie{{/if}}</div>                </div>
+                {{/each}}
+              </div>
+            </section>
+          </div>
+        </section>
+      </article>
+    </div>
+  </main>
+
+  <script src="https://js.stripe.com/v3/"></script>
+  <script>
+    const stripe = Stripe('{{stripe_public_key}}');
+    const checkoutButton = document.getElementById('checkout-button');
+
+    checkoutButton.addEventListener('click', function() {
+      const itemId = {{item_id}};
+      if (!itemId || isNaN(itemId)) {
+        alert('Błąd: Nieprawidłowe ID przedmiotu!');
+        return;
+      }
+
+      checkoutButton.disabled = true;
+      checkoutButton.textContent = 'Przekierowywanie...';
+      
+      fetch(`/create-checkout-session/${itemId}`)
+      .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+      })
+      .then(session => {
+        if(session.error) throw new Error(session.error);
+        return stripe.redirectToCheckout({ sessionId: session.id });
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Błąd płatności: ' + error.message);
+        checkoutButton.disabled = false;
+        checkoutButton.textContent = 'Kup teraz';
+      });
+    });
+  </script>
+
+  <script src="/static/script.js"></script>
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+</html>
+
+
+<style>
+
+
+  .scroll-container {
+      max-height: 400px; /* Możesz dostosować wysokość */
+      overflow-y: auto; 
+      scrollbar-width: thin; /* Dla przeglądarek Firefox */
+      scrollbar-color: #666 #222; /* Pasek przewijania i tło */
+  
+      /* Dla Chrome, Edge, Safari */
+      &::-webkit-scrollbar {
+          width: 8px;
+      }
+  
+      &::-webkit-scrollbar-track {
+          background: #222;
+          border-radius: 4px;
+      }
+  
+      &::-webkit-scrollbar-thumb {
+          background: #666;
+          border-radius: 4px;
+      }
+  
+      &::-webkit-scrollbar-thumb:hover {
+          background: #888;
+      }
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      /* Style dla przycisku Kup teraz */
+      .main-buy-btn {
+      display: block; /* Aby działało margin auto */
+      margin: 15px auto; /* Wyśrodkowanie */
+      background-color: #222; /* Ciemne tło */
+      color: #d1d1d1; /* Jasny tekst */
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  /* Efekt hover dla przycisku */
+  .main-buy-btn:hover {
+      background-color: #333;
+      transform: scale(1.05);
+  }
+  
+  
+      /* Modal płatności */
+      .payment-modal {
+          display: none;
+          position: fixed;
+          z-index: 1000;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0,0,0,0.7);
+      }
+  
+      .payment-modal-content {
+          background-color: #1a1a1a;
+          margin: 5% auto;
+          padding: 25px;
+          border-radius: 10px;
+          width: 90%;
+          max-width: 500px;
+          position: relative;
+      }
+  
+      .close {
+          color: #aaa;
+          float: right;
+          font-size: 28px;
+          font-weight: bold;
+          cursor: pointer;
+      }
+  
+      .close:hover {
+          color: #fff;
+      }
+  
+      /* Reszta oryginalnych styli */
+      .container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 20px;
+      }
+  
+      .basic-info, .stats-section, .transaction-section, .season-section {
+          background: #252525;
+          border-radius: 8px;
+          padding: 20px;
+          margin: 1.5rem 0;
+      }
+  
+      /* Style tabel */
+      .transaction-table, .season-table {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1px;
+          background: #333;
+          border-radius: 6px;
+          overflow: hidden;
+      }
+  
+      .table-header {
+          display: contents;
+          font-weight: 700;
+          background: #6c5ce7;
+      }
+  
+      .table-header .th {
+          padding: 15px;
+          text-align: left;
+      }
+  
+      .table-row {
+          display: contents;
+      }
+  
+      .table-row .td {
+          padding: 12px 15px;
+          background: #2d2d2d;
+          color: #fff;
+      }
+  
+      /* Style dla kosmetyków */
+      .cosmetics-section {
+          margin: 2rem 0;
+          background: #252525;
+          border-radius: 8px;
+          padding: 20px;
+      }
+  
+      .scroll-container {
+          max-height: 600px;
+          overflow-y: auto;
+          padding-right: 10px;
+      }
+  
+      .cosmetics-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+          gap: 1.5rem;
+          padding: 10px 0;
+      }
+  
+      .cosmetic-card {
+          background: #2d2d2d;
+          border-radius: 10px;
+          overflow: hidden;
+          transition: transform 0.2s;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      }
+  
+      .cosmetic-card:hover {
+          transform: translateY(-3px);
+      }
+  
+      .cosmetic-image img {
+          width: 100%;
+          height: 150px;
+          object-fit: cover;
+          border-bottom: 2px solid #3a3a3a;
+      }
+  
+      .cosmetic-info {
+          padding: 1rem;
+          text-align: center;
+      }
+  
+      .item-title-wrapper {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 10px;
+          margin: 0.5rem 0;
+      }
+  
+      .item-title {
+          margin: 0;
+          font-size: 0.95em;
+          color: #fff;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          text-align: left;
+          flex-grow: 1;
+      }
+  
+      .buy-now {
+          background: #6c5ce7;
+          color: white;
+          border: none;
+          padding: 6px 12px;
+          border-radius: 15px;
+          font-size: 0.8em;
+          cursor: pointer;
+          transition: background 0.2s;
+          flex-shrink: 0;
+      }
+  
+      .buy-now:hover {
+          background: #5b4bc0;
+      }
+  
+      .rarity {
+          display: inline-block;
+          padding: 0.25rem 0.8rem;
+          border-radius: 15px;
+          font-size: 0.8em;
+          font-weight: 700;
+          text-transform: uppercase;
+          color:white;
+      }
+  
+      .common { background: #727272; }
+      .uncommon { background: #1e792c; }
+      .rare { background: #2a6fd6; }
+      .epic { background: #8932d8; }
+      .legendary { background: #fcc510; }
+      .superrare { background: #e1860e; }
+  
+      /* Responsywność */
+      @media (max-width: 768px) {
+          .transaction-table, .season-table {
+              grid-template-columns: 1fr;
+          }
+          
+          .table-header .th {
+              display: none;
+          }
+          
+          .table-row .td {
+              display: grid;
+              grid-template-columns: 100px 1fr;
+              gap: 10px;
+          }
+          
+          .table-row .td::before {
+              content: attr(data-label);
+              font-weight: bold;
+              color: #6c5ce7;
+          }
+  
+          .cosmetics-grid {
+              grid-template-columns: repeat(3, 1fr);
+          }
+      }
+  
+      @media (max-width: 480px) {
+          .cosmetics-grid {
+              grid-template-columns: repeat(2, 1fr);
+          }
+          
+          .item-title-wrapper {
+              flex-direction: column;
+              gap: 5px;
+          }
+          
+          .buy-now {
+              width: 100%;
+          }
+      }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+      
+  </style>

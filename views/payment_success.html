@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DuckMarket.pl - Płatność zrealizowana</title>
+    <link rel="shortcut icon" href="/static/logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <main>
+        <aside class="sidebar" data-sidebar>
+            <div class="sidebar-info">
+                <figure class="avatar-box">
+                    <img src="/static/logo.png" alt="DuckMarket logo" width="80">
+                </figure>
+        
+                <div class="info-content">
+                    <h1 class="name">DuckMarket.pl</h1>
+                    <p class="title">Market Kont</p>
+                </div>
+        
+                <button class="info_more-btn" data-sidebar-btn>
+                    <span>Pokaż więcej</span>
+                    <ion-icon name="chevron-down"></ion-icon>
+                </button>
+            </div>
+        
+            <div class="sidebar-info_more">
+                <div class="separator"></div>
+                <ul class="contacts-list">
+                    <li class="contact-item">
+                        <div class="icon-box">
+                            <img src="/static/logo (1).png" width="33" height="33">
+                        </div>
+                        <div class="contact-info">
+                            <p class="contact-title">Dołącz tutaj!</p>
+                            <a href="https://discord.gg/4fxBst4xMW" class="contact-link">Discord</a>
+                        </div>
+                    </li>
+                </ul>
+                <div class="separator"></div>
+            </div>
+        </aside>
+    
+        <div class="main-content">
+            <nav class="navbar">
+                <ul class="navbar-list">
+                    <li class="navbar-item"><a href="/" class="navbar-link">Strona główna</a></li>
+                    <li class="navbar-item"><a href="/market" class="navbar-link active">Market</a></li>
+                    <li class="navbar-item"><a href="/regulamin" class="navbar-link">Regulamin</a></li>
+                </ul>
+            </nav>
+        
+            <article class="about active" data-page="about">
+                <header>
+                    <h2 class="h2 article-title">Płatność zrealizowana</h2>
+                </header>
+                
+                <section class="about-text">
+                    <div class="container">
+                        <div class="credentials-box">
+                            <div class="credential-section">
+                                <h2>Dane konta</h2>
+                                <div class="credential-item">
+                                    <span class="credential-label">Login:</span>
+                                    <span class="credential-value">{{credentials.login}}</span>
+                                </div>
+                                <div class="credential-item">
+                                    <span class="credential-label">Hasło:</span>
+                                    <span class="credential-value">{{credentials.password}}</span>
+                                </div>
+                            </div>
+        
+                            <div class="credential-section">
+                                <h2>Dane email</h2>
+                                <div class="credential-item">
+                                    <span class="credential-label">Dostawca:</span>
+                                    <span class="provider-badge {{toLower email_provider}}">{{email_provider}}</span>
+                                </div>
+                                <div class="credential-item">
+                                    <span class="credential-label">Email:</span>
+                                    <span class="credential-value">{{credentials.email_login}}</span>
+                                </div>
+                                <div class="credential-item">
+                                    <span class="credential-label">Hasło do email:</span>
+                                    <span class="credential-value">{{credentials.email_password}}</span>
+                                </div>
+                                <div class="credential-item">
+                                    <span class="credential-label">Stare hasło:</span>
+                                    <span class="credential-value">{{credentials.old_password}}</span>
+                                </div>
+                            </div>
+        
+                            <div class="credential-section">
+                                <h2>Szczegóły konta</h2>
+                                <div class="credential-item">
+                                    <span class="credential-label">Data rejestracji:</span>
+                                    <span class="credential-value">{{formatTimestamp item_details.fortnite_register_date}}</span>
+                                </div>
+                                <div class="credential-item">
+                                    <span class="credential-label">Ostatnia aktywność:</span>
+                                    <span class="credential-value">{{formatTimestamp item_details.fortnite_last_activity}}</span>
+                                </div>
+                                <div class="credential-item">
+                                    <span class="credential-label">Liczba skinów:</span>
+                                    <span class="credential-value">{{item_details.fortnite_skin_count}}</span>
+                                </div>
+                            </div>
+        
+                            <a href="/download-credentials?login={{credentials.login}}&password={{credentials.password}}" 
+                            class="download-btn">
+                                Pobierz dane jako .txt
+                            </a>
+                        </div>
+                    </div>
+                </section>
+            </article>
+        </div>
+    </main>
+
+    <style>
+    .provider-badge {
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 0.9em;
+        font-weight: bold;
+    }
+    .provider-badge.firstmail { background: #4CAF50; color: white; }
+    .provider-badge.rambler { background: #E91E63; color: white; }
+    .provider-badge.outlook { background: #2196F3; color: white; }
+    .provider-badge.mail.ru { background: #FF5722; color: white; }
+    .provider-badge.notletters { background: #9C27B0; color: white; }
+    .provider-badge.other { background: #607D8B; color: white; }
+    .credentials-box {
+        background: #1a1a1a;
+        padding: 2rem;
+        border-radius: 10px;
+        margin: 2rem 0;
+    }
+    .credential-section {
+        margin-bottom: 2rem;
+    }
+    .credential-item {
+        display: flex;
+        justify-content: space-between;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: #2d2d2d;
+        border-radius: 5px;
+    }
+    .download-btn {
+        display: inline-block;
+        background: #ffa404;
+        color: black;
+        padding: 12px 24px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: bold;
+        margin-top: 2rem;
+        transition: background 0.3s;
+    }
+    .download-btn:hover {
+        background: #ff8800;
+    }
+    </style>
+
+    <script src="/static/script.js"></script>
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+</body>
+</html>
